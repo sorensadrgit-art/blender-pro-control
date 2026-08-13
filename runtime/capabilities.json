@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "captured_at": "2026-08-13T17:18:23+00:00",
+  "host": {
+    "os": "Ubuntu 24.04.4 LTS",
+    "kernel": "6.8.0-137-generic",
+    "cpu_model": "AMD EPYC 9354P 32-Core Processor",
+    "logical_cpus": 4,
+    "memory_kb": 16376016,
+    "disk_bytes": 206900281344,
+    "disk_available_bytes": 184222380032
+  },
+  "blender": {
+    "version": "5.2.0 LTS",
+    "build_hash": "fbe6228777e7",
+    "cycles_devices": [
+      {"id": "CPU", "name": "AMD EPYC 9354P 32-Core Processor", "type": "CPU"}
+    ],
+    "qualified_backend": "CPU",
+    "gpu_available": false
+  }
+}
