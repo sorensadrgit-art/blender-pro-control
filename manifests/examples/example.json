@@ -1,0 +1,10 @@
+{
+  "schema": 1,
+  "project": "example-shot",
+  "scene": "/srv/blender-pro/projects/example-shot/scene.blend",
+  "engine": "CYCLES",
+  "frame": 1,
+  "resolution": [1920, 1080],
+  "preview_output": "/srv/blender-pro/previews/example-shot/preview.png",
+  "render_output": "/srv/blender-pro/renders/example-shot/final.png"
+}

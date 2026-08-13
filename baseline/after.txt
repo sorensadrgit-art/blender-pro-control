@@ -1,0 +1,27 @@
+CAPTURED_AT=2026-08-13T19:55:30+00:00
+HOST=srv1836616
+OS=Ubuntu 24.04.4 LTS
+KERNEL=6.8.0-137-generic
+DISK=/dev/sda1 193G total 22G used 172G available 12% used
+MEMORY=15Gi total 4.7Gi used 10Gi available
+
+PROTECTED_SERVICES
+agent-bridge=42bdc21424cbe1b2f197383005a0f76fad27a4346b8dca8cdc13d7d945ca5c9f|Up 5 days
+9router=76d2a3c53bcd3154382f5fb32def431ef0776bd3fcb78080b51500fa7958be4b|Up 5 days
+traefik=47a1b0c975635a1ce3c885d0a1f3a992d239d135beb3d1ef509b63e6619f1b21|Up 5 days
+9router_compose_sha256=eb09614c991fb6f20f50d3bfe288de9a87d43ee75c869f1743ad57609524f882
+traefik_compose_sha256=7502a40f608137f231616d960fd8c9c9e5e11fee8c0a0fa223b6b9cb21ab0b08
+
+BLENDER_PRO
+current=/opt/blender-pro/releases/5.2.0
+version=Blender 5.2.0 LTS
+build_hash=fbe6228777e7
+cycles_backend=CPU
+public_tcp_listener=none
+mcp_transport=stdio
+systemd_worker=DynamicUser
+flamenco=disabled
+
+SKYBRIDGE
+container=absent
+archive_tree=/opt/skybridge present; deletion blocked by platform safety layer

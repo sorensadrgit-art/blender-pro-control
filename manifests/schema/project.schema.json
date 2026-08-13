@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blender-pro.local/schema/project.schema.json",
+  "title": "Blender Pro Render Job",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "project", "scene", "engine", "frame", "resolution",
+    "preview_output", "render_output"
+  ],
+  "properties": {
+    "schema": {"const": 1},
+    "project": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"},
+    "scene": {"type": "string", "pattern": "^/srv/blender-pro/(projects|assets)/.*\\.blend$"},
+    "engine": {"enum": ["CYCLES", "BLENDER_EEVEE_NEXT"]},
+    "frame": {"type": "integer", "minimum": 1, "maximum": 10000000},
+    "resolution": {
+      "type": "array", "minItems": 2, "maxItems": 2,
+      "items": {"type": "integer", "minimum": 1, "maximum": 16384}
+    },
+    "preview_output": {"type": "string", "pattern": "^/srv/blender-pro/previews/.*\\.png$"},
+    "render_output": {"type": "string", "pattern": "^/srv/blender-pro/renders/.*\\.png$"}
+  }
+}

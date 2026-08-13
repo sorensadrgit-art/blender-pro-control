@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "captured_at": "2026-08-13T19:55:30+00:00",
+  "status": "pass",
+  "blender": {"version":"5.2.0 LTS","build_hash":"fbe6228777e7","backend":"CPU","gpu_available":false},
+  "tests": {"passed":34,"failed":0},
+  "doctor_ok": true,
+  "render_pipeline": {
+    "preflight":"pass","preview":"pass","final":"pass",
+    "linked_library":"pass","persistent_systemd_worker":"pass","mcp_to_systemd_worker":"pass"
+  },
+  "asset_library": {
+    "published_asset":"/srv/blender-pro/assets/published/props/hero-cube/v001/hero-cube.blend",
+    "sha256_before":"7eabcaace76345148879a0506d18a74acc9b0e9f42aacf118afae7d2cea9050a",
+    "sha256_after":"7eabcaace76345148879a0506d18a74acc9b0e9f42aacf118afae7d2cea9050a"
+  },
+  "agent": {"transport":"stdio","tool_count":4,"arbitrary_python":false,"public_listener":false},
+  "worker": {"systemd_dynamic_user":true,"network_denied":true,"outputs_returned_to_root":true,"orphan_blender_processes":0},
+  "rollback_link_test":"pass",
+  "protected_services": {
+    "agent_bridge_id":"42bdc21424cbe1b2f197383005a0f76fad27a4346b8dca8cdc13d7d945ca5c9f",
+    "router_id":"76d2a3c53bcd3154382f5fb32def431ef0776bd3fcb78080b51500fa7958be4b",
+    "traefik_id":"47a1b0c975635a1ce3c885d0a1f3a992d239d135beb3d1ef509b63e6619f1b21",
+    "router_compose_sha256":"eb09614c991fb6f20f50d3bfe288de9a87d43ee75c869f1743ad57609524f882",
+    "traefik_compose_sha256":"7502a40f608137f231616d960fd8c9c9e5e11fee8c0a0fa223b6b9cb21ab0b08"
+  },
+  "flamenco":"disabled_optional",
+  "skybridge":{"container":"deleted","archive_tree":"present_platform_blocked"}
+}
