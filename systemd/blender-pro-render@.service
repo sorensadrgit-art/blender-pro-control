@@ -1,0 +1,66 @@
+[Unit]
+Description=Blender Pro Render Job %i
+After=local-fs.target
+ConditionPathExists=/srv/blender-pro/jobs/%i.json
+
+[Service]
+Type=oneshot
+DynamicUser=yes
+Environment=BLENDER_PRO_PROFILE=render-safe
+Environment=BLENDER_PRO_JOB_INSTANCE=%i
+Environment=HOME=/tmp
+Environment=XDG_CONFIG_HOME=/tmp/.config
+WorkingDirectory=/srv/blender-pro
+ExecStart=/opt/blender-pro/bin/blender-job /srv/blender-pro/jobs/%i.json
+ExecStopPost=-+/usr/bin/chown -R root:root /srv/blender-pro/previews/%i
+ExecStopPost=-+/usr/bin/chown -R root:root /srv/blender-pro/renders/%i
+ExecStopPost=-+/usr/bin/chown root:root /srv/blender-pro/jobs/%i.result.json
+
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+PrivateMounts=yes
+ProtectClock=yes
+ProtectHostname=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectKernelLogs=yes
+ProtectControlGroups=yes
+ProtectProc=invisible
+ProcSubset=pid
+LockPersonality=yes
+RestrictRealtime=yes
+RestrictSUIDSGID=yes
+RestrictNamespaces=yes
+RestrictAddressFamilies=AF_UNIX
+IPAddressDeny=any
+CapabilityBoundingSet=
+AmbientCapabilities=
+KeyringMode=private
+RemoveIPC=yes
+SystemCallArchitectures=native
+UMask=0027
+
+ReadWritePaths=/srv/blender-pro/jobs
+ReadWritePaths=/srv/blender-pro/previews
+ReadWritePaths=/srv/blender-pro/renders
+ReadWritePaths=/var/cache/blender-pro
+ReadWritePaths=/run/blender-pro
+
+CPUQuota=300%
+MemoryHigh=10G
+MemoryMax=12G
+TasksMax=512
+LimitNOFILE=65536
+Nice=10
+TimeoutStartSec=7500
+TimeoutStopSec=30
+KillMode=mixed
+KillSignal=SIGTERM
+FinalKillSignal=SIGKILL
+SendSIGKILL=yes
+Restart=no
+StandardOutput=journal
+StandardError=journal

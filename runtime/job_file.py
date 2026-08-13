@@ -38,7 +38,7 @@ def _write_json_atomic(path, data):
 
 def run_job_file(manifest_path, roots, executor, disk_probe, job_root):
     manifest = _within_job_root(manifest_path, job_root)
-    data = json.loads(manifest.read_text(encoding='utf-8'))
+    data = json.loads(manifest.read_text(encoding='utf-8-sig'))
     result = execute_job(data, roots, executor, disk_probe)
     result_path = manifest.with_suffix('.result.json')
     _write_json_atomic(result_path, result)
