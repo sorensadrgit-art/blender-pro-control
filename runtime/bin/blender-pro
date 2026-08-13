@@ -10,4 +10,10 @@ fi
 set -a
 . "$PROFILE_FILE"
 set +a
-exec "$ROOT/current/blender" "$@"
+EXTRA=()
+case "$PROFILE" in
+  render-safe) EXTRA+=(--offline-mode --disable-autoexec) ;;
+  asset-fetch) EXTRA+=(--disable-autoexec) ;;
+  *) echo "Unsupported Blender Pro profile: $PROFILE" >&2; exit 64 ;;
+esac
+exec "$ROOT/current/blender" "${EXTRA[@]}" "$@"

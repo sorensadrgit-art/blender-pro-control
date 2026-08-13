@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -euo pipefail
+if [ $# -lt 1 ]; then echo "usage: blender-verify <scene.blend>" >&2; exit 64; fi
+REAL=$(realpath -e "$1") || exit 20
+case "$REAL" in
+  /srv/blender-pro/projects/*|/srv/blender-pro/assets/*) ;;
+  *) echo "scene path is outside Blender Pro roots: $REAL" >&2; exit 50 ;;
+esac
+exec /opt/blender-pro/bin/blender-pro --background "$REAL" --python-exit-code 30 --python /opt/blender-pro/skills/preflight.py
