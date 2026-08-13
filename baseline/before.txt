@@ -1,0 +1,71 @@
+2026-08-13T16:14:10+00:00
+=== HOST ===
+srv1836616
+PRETTY_NAME="Ubuntu 24.04.4 LTS"
+NAME="Ubuntu"
+VERSION_ID="24.04"
+VERSION="24.04.4 LTS (Noble Numbat)"
+VERSION_CODENAME=noble
+ID=ubuntu
+ID_LIKE=debian
+HOME_URL="https://www.ubuntu.com/"
+SUPPORT_URL="https://help.ubuntu.com/"
+BUG_REPORT_URL="https://bugs.launchpad.net/ubuntu/"
+PRIVACY_POLICY_URL="https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"
+UBUNTU_CODENAME=noble
+LOGO=ubuntu-logo
+Linux srv1836616 6.8.0-137-generic #137-Ubuntu SMP PREEMPT_DYNAMIC Fri Jul 17 20:28:23 UTC 2026 x86_64 x86_64 x86_64 GNU/Linux
+=== CPU ===
+4
+Model name:                              AMD EPYC 9354P 32-Core Processor
+BIOS Model name:                         pc-i440fx-11.0  CPU @ 2.0GHz
+Thread(s) per core:                      1
+Core(s) per socket:                      4
+Socket(s):                               1
+=== RAM ===
+               total        used        free      shared  buff/cache   available
+Mem:            15Gi       4.7Gi       442Mi        24Mi        10Gi        10Gi
+Swap:             0B          0B          0B
+=== DISK ===
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/sda1       193G   20G  174G  11% /
+=== GPU ===
+bash: line 1: nvidia-smi: command not found
+=== DOCKER PS ===
+09c623f28692b315ed680c28024709871b338aef8cbe440ad4563ca6c43e7b8e|penpot-penpot-frontend-1|penpotapp/frontend:2.16|Up 29 hours|127.0.0.1:9001->8080/tcp
+01e135168dff2a5c0b2dd97dbc69dff5057d6bf8cf2149ef2d99bd1fe79714cc|penpot-penpot-backend-1|penpotapp/backend:2.16|Up 29 hours|
+3e95ba5d55a59a07e59f16be25ee7213b7ea8874606a478134b2287cbcf72aa4|penpot-penpot-exporter-1|penpotapp/exporter:2.16|Up 29 hours|
+ce21125936875961ef58dd3071097fe20aed69054104dbd5b7bcda8cc8dd8e21|penpot-penpot-postgres-1|postgres:15|Up 29 hours (healthy)|5432/tcp
+30923ee6edc6e7201bea996171306c41047e24f7b8971d337684f0e246ada6d6|penpot-penpot-mcp-1|penpotapp/mcp:2.16|Up 29 hours|
+339e9e8a66a40b64abd6b2f25caf3364402edb24c778237bc200c8ece50d3cb2|penpot-penpot-mailcatch-1|sj26/mailcatcher:latest|Up 29 hours|1025/tcp, 127.0.0.1:1080->1080/tcp
+e63df70277d713614b589097d11c0846fb0148d49517c4959e8c22f8d0318b7f|penpot-penpot-valkey-1|valkey/valkey:8.1|Up 29 hours (healthy)|6379/tcp
+2980ccd90635af964d66c93b6a78e354f97da7ff45178e93bec4dd0de3822065|studio-relay-studio-relay-1|studio-relay-studio-relay|Up 4 days (healthy)|8080/tcp
+a5f2048049473eee63080e1e126bc92942ba1712ee333b548b75e09af88a498f|skybridge|skybridge-skybridge|Up 5 days|127.0.0.1:3001->3000/tcp
+42bdc21424cbe1b2f197383005a0f76fad27a4346b8dca8cdc13d7d945ca5c9f|agent-bridge|agent-bridge-agent-bridge|Up 5 days|127.0.0.1:9130->9130/tcp
+76d2a3c53bcd3154382f5fb32def431ef0776bd3fcb78080b51500fa7958be4b|9router-k4lo-niner-router-1|ghcr.io/decolua/9router:latest|Up 5 days|20128/tcp
+47a1b0c975635a1ce3c885d0a1f3a992d239d135beb3d1ef509b63e6619f1b21|traefik-traefik-1|traefik:latest|Up 5 days|
+=== DOCKER NETWORKS ===
+NETWORK ID                                                         NAME                   DRIVER    SCOPE
+eb21482565d3169338ab937d4b9f9056c462277cc382544acf8ae06a17e97869   9router-k4lo_default   bridge    local
+dca28b96e76b551b87e727fc022386062785fb386ed37f16a455ec484b2a96df   agent-control          bridge    local
+a32a05505060821894218ca4ae19bded7b0b4ec1386200835e7a71ea0141b188   bridge                 bridge    local
+ddf3b5e2f9500a324b1c022f8b103bf772f3782fb76fb2c07c46f370e724b3a1   host                   host      local
+01905cf562f246ba69d78cd0c5bf16a8ce37c9f48952da02867a70012a9fb5ea   none                   null      local
+f074e4841e2001b0782306a29cd5d96e2864f061d57c2b5a2c730fab1e1f40b6   penpot_penpot          bridge    local
+=== LISTENERS ===
+State  Recv-Q Send-Q Local Address:Port Peer Address:PortProcess                                                 
+LISTEN 0      4096   127.0.0.53%lo:53        0.0.0.0:*    users:(("systemd-resolve",pid=367160,fd=15))           
+LISTEN 0      4096       127.0.0.1:1080      0.0.0.0:*    users:(("docker-proxy",pid=390246,fd=8))               
+LISTEN 0      4096      127.0.0.54:53        0.0.0.0:*    users:(("systemd-resolve",pid=367160,fd=17))           
+LISTEN 0      2048       127.0.0.1:9119      0.0.0.0:*    users:(("hermes",pid=1527,fd=11))                      
+LISTEN 0      4096       127.0.0.1:9130      0.0.0.0:*    users:(("docker-proxy",pid=1357,fd=8))                 
+LISTEN 0      4096       127.0.0.1:9001      0.0.0.0:*    users:(("docker-proxy",pid=409419,fd=8))               
+LISTEN 0      2048       127.0.0.1:8787      0.0.0.0:*    users:(("headroom",pid=986,fd=8))                      
+LISTEN 0      4096       127.0.0.1:3001      0.0.0.0:*    users:(("docker-proxy",pid=1386,fd=8))                 
+LISTEN 0      4096         0.0.0.0:22        0.0.0.0:*    users:(("sshd",pid=1593,fd=3),("systemd",pid=1,fd=126))
+LISTEN 0      4096            [::]:22           [::]:*    users:(("sshd",pid=1593,fd=4),("systemd",pid=1,fd=127))
+LISTEN 0      4096               *:80              *:*    users:(("traefik",pid=1251,fd=4))                      
+LISTEN 0      4096               *:443             *:*    users:(("traefik",pid=1251,fd=7))                      
+=== PROTECTED CONFIG HASHES ===
+eb09614c991fb6f20f50d3bfe288de9a87d43ee75c869f1743ad57609524f882  /docker/9router-k4lo/docker-compose.yml
+7502a40f608137f231616d960fd8c9c9e5e11fee8c0a0fa223b6b9cb21ab0b08  /docker/traefik/docker-compose.yml
