@@ -1,0 +1,11 @@
+{
+  "product": "Blender",
+  "release_line": "5.2 LTS",
+  "version": "5.2.0",
+  "build_hash": "fbe6228777e7",
+  "platform": "linux-x64",
+  "archive": "blender-5.2.0-linux-x64.tar.xz",
+  "sha256": "96f6c181a30f4950607839dc84d42a354b250d8a0231b098b59b7bc69c351c48",
+  "source": "https://download.blender.org/release/Blender5.2/",
+  "promoted": true
+}

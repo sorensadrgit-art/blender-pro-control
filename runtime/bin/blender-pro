@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -euo pipefail
+ROOT=/opt/blender-pro
+PROFILE=${BLENDER_PRO_PROFILE:-render-safe}
+PROFILE_FILE="$ROOT/profiles/$PROFILE.env"
+if [ ! -r "$PROFILE_FILE" ]; then
+  echo "Unknown Blender Pro profile: $PROFILE" >&2
+  exit 64
+fi
+set -a
+. "$PROFILE_FILE"
+set +a
+exec "$ROOT/current/blender" "$@"
