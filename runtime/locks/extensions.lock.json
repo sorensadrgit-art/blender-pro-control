@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "blender": "5.2.0",
+  "bundled": {
+    "node_wrangler": "4.1.0",
+    "rigify": "0.6.10"
+  },
+  "external": {
+    "blenderkit": {
+      "version": "3.21.0.260628",
+      "commit": "4789c2b",
+      "package": "blenderkit-v3.21.0.260628.zip",
+      "sha256": "fbeee0f603b5ca23aeb493d7826051d0d47ec2dd28ce1469b1a0f3197d2e1e8c",
+      "size": 39143952,
+      "permissions": ["files", "network"],
+      "install_profile": "asset-fetch",
+      "status": "verified_quarantined"
+    }
+  }
+}
