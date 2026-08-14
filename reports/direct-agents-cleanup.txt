@@ -1,0 +1,31 @@
+DIRECT_AGENT_BRIDGE_CLEANUP=PASS_WITH_PRESERVED_STUDIO_CONFIG
+CAPTURED_AT=2026-08-14T01:28Z
+
+REMOVED_OR_ALREADY_ABSENT
+agent-bridge-container=absent before cleanup
+agent-bridge-docker-image=absent
+/docker/agent-bridge=absent before cleanup
+/docker/skybridge=absent before cleanup
+/opt/agent-bridge=removed
+/opt/agent-bridge/releases/pre-skybridge-link-20260807T194531Z.tgz=removed with tree
+
+PRESERVED
+agent-control=Docker network preserved
+agent-control-members=studio-relay-studio-relay-1
+studio-relay=2980ccd90635 healthy, not restarted
+9router=76d2a3c53bcd running, not restarted
+traefik=47a1b0c97563 running, not restarted
+Hermes Headroom/9router provider path=preserved
+Hermes Basic Memory + Notion=preserved
+
+STUDIO_RELAY_BRIDGE_CONFIG
+AGENT_BRIDGE_* values remain in /docker/studio-relay/.env because current studio-relay container code routes Hermes/Factory through DesktopBridgeWorker when those fields are present.
+No live agent-bridge exists, so those workers are currently reported offline/unavailable rather than silently falling through to missing CLI binaries inside the container.
+The studio-relay container does not contain hermes or droid executables.
+Removing these env fields without redesigning/rebuilding studio-relay would create a misleading direct-CLI path, so config was preserved under the approved do-not-break-service gate.
+
+LIVE_BLENDER_AGENT_TOPOLOGY
+Hermes=direct local stdio Blender MCP
+Factory=direct local stdio Blender MCP
+shared Blender bridge=none
+public Blender MCP listener=none
