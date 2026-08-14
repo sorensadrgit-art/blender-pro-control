@@ -10,6 +10,7 @@ class SystemdUnitTests(unittest.TestCase):
         text = UNIT.read_text(encoding='utf-8')
         required = [
             'DynamicUser=yes',
+            'SupplementaryGroups=blender-pro-agent',
             'NoNewPrivileges=yes',
             'ProtectSystem=strict',
             'ProtectHome=yes',
@@ -28,6 +29,13 @@ class SystemdUnitTests(unittest.TestCase):
             'ExecStart=/opt/blender-pro/bin/blender-job /srv/blender-pro/jobs/%i.json',
             text,
         )
+        self.assertIn('root:blender-pro-agent /srv/blender-pro/jobs/%i.result.json', text)
+        self.assertIn('root:blender-pro-agent /srv/blender-pro/previews/%i', text)
+        self.assertIn('root:blender-pro-agent /srv/blender-pro/renders/%i', text)
+        self.assertIn('/usr/bin/chmod -R g+rX /srv/blender-pro/previews/%i', text)
+        self.assertIn('/usr/bin/chmod -R g+rX /srv/blender-pro/renders/%i', text)
+        self.assertIn('/usr/bin/chmod g+r /srv/blender-pro/jobs/%i.result.json', text)
+        self.assertNotIn('root:root /srv/blender-pro/jobs/%i.result.json', text)
         self.assertNotIn('traefik', text.lower())
         self.assertNotIn('0.0.0.0', text)
 

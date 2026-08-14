@@ -6,15 +6,19 @@ ConditionPathExists=/srv/blender-pro/jobs/%i.json
 [Service]
 Type=oneshot
 DynamicUser=yes
+SupplementaryGroups=blender-pro-agent
 Environment=BLENDER_PRO_PROFILE=render-safe
 Environment=BLENDER_PRO_JOB_INSTANCE=%i
 Environment=HOME=/tmp
 Environment=XDG_CONFIG_HOME=/tmp/.config
 WorkingDirectory=/srv/blender-pro
 ExecStart=/opt/blender-pro/bin/blender-job /srv/blender-pro/jobs/%i.json
-ExecStopPost=-+/usr/bin/chown -R root:root /srv/blender-pro/previews/%i
-ExecStopPost=-+/usr/bin/chown -R root:root /srv/blender-pro/renders/%i
-ExecStopPost=-+/usr/bin/chown root:root /srv/blender-pro/jobs/%i.result.json
+ExecStopPost=-+/usr/bin/chown -R root:blender-pro-agent /srv/blender-pro/previews/%i
+ExecStopPost=-+/usr/bin/chmod -R g+rX /srv/blender-pro/previews/%i
+ExecStopPost=-+/usr/bin/chown -R root:blender-pro-agent /srv/blender-pro/renders/%i
+ExecStopPost=-+/usr/bin/chmod -R g+rX /srv/blender-pro/renders/%i
+ExecStopPost=-+/usr/bin/chown root:blender-pro-agent /srv/blender-pro/jobs/%i.result.json
+ExecStopPost=-+/usr/bin/chmod g+r /srv/blender-pro/jobs/%i.result.json
 
 NoNewPrivileges=yes
 ProtectSystem=strict
