@@ -1,0 +1,39 @@
+CAPTURED_AT=2026-08-14T01:04:11+00:00
+HOST=srv1836616
+FEATURE_HEAD=56382f5b214a3060904715938754e23f59c30f3c
+BLENDER=Blender 5.2.0 LTS
+
+PROTECTED_SERVICES
+studio-relay=2980ccd90635|Up 5 days (healthy)
+9router=76d2a3c53bcd|Up 5 days
+traefik=47a1b0c97563|Up 5 days
+agent-control-members=studio-relay-studio-relay-1
+
+DIRECT_CLIENTS
+hermes=Hermes Agent v0.20.0 (2026.8.3)
+hermes_mcp=basic-memory enabled; notion enabled; blender-pro absent
+factory_droid=absent
+
+BLENDER_CONTROL_PERMISSIONS
+jobs=drwxrwxrwt root:root
+previews=drwxrwxrwt root:root
+renders=drwxrwxrwt root:root
+
+LOCAL_LISTENERS
+127.0.0.1:9119=Hermes dashboard
+127.0.0.1:8787=Headroom provider proxy
+blender_public_listener=none observed
+
+BRIDGE_STATE
+agent-bridge-container=absent
+/docker/agent-bridge=absent
+/docker/skybridge=absent
+/opt/agent-bridge=present stale implementation tree
+studio-relay=healthy but contains stale AGENT_BRIDGE_URL=http://agent-bridge:9130 configuration
+studio-relay bridge service token exists but value was not captured
+
+CLEANUP_GATE
+/opt/agent-bridge=removable after direct-client validation; no live container uses it
+studio-relay AGENT_BRIDGE_* settings=stale configuration requiring separate safe cleanup; service currently remains healthy without an agent-bridge container
+agent-control=preserve; studio-relay is the remaining member
+Traefik/9router/Obsidian=preserve and do not restart for this work
