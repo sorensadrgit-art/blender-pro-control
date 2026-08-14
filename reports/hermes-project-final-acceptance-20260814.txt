@@ -1,0 +1,51 @@
+HERMES_PROJECT_FINAL_ACCEPTANCE
+DATE=2026-08-14
+STATUS=PASS
+
+VPS_HERMES_VERSION=0.20.1
+VPS_HERMES_COMMIT=56a41715dc3b8bf6f50a740ff9416c4036ef4259
+VPS_UPDATE_CHECK=already_up_to_date
+VPS_GATEWAY_UNIT_CURRENT=true
+VPS_HEADROOM_ROUTE_GUARD=present
+VPS_HEADROOM_VERSION=0.35.0
+VPS_HEADROOM_INFERENCE=VPS_FINAL_HEADROOM_OK
+VPS_BASIC_MEMORY=mcp_connected_20_tools; prior_write_read_delete_passed
+VPS_GRAPHIFY=mcp_connected_10_tools; refreshed_graph_query_passed
+VPS_BLENDER=mcp_connected_4_tools; linked_scene_preflight_passed; render_job_complete
+VPS_BROWSER=Chrome_152_CDP_loopback
+VPS_NOTION=absent_by_design
+VPS_MESSAGING=none_by_design
+
+DESKTOP_HERMES_VERSION=0.20.1
+DESKTOP_HERMES_COMMIT=56a41715dc3b8bf6f50a740ff9416c4036ef4259
+DESKTOP_UPDATE_CHECK=already_up_to_date
+DESKTOP_PACKAGE=rebuilt_from_56a41715_with_preserved_Buzz_local_patches
+DESKTOP_TELEGRAM_GATEWAY=running
+DESKTOP_TELEGRAM_STATE=connected
+DESKTOP_TELEGRAM_OUTBOUND=HTTP_200_message_id_returned
+DESKTOP_TELEGRAM_INBOUND_POLLING=connected
+DESKTOP_TELEGRAM_FRESH_USER_MARKER=not_observed_during_automated_acceptance
+DESKTOP_NOTION=oauth_connected_28_tools
+DESKTOP_BASIC_MEMORY=mcp_connected_20_tools
+DESKTOP_BLENDER=mcp_connected_4_tools_via_blender-hermes
+DESKTOP_VPS_TUNNEL=present
+
+FACTORY_SEPARATION=pass
+FACTORY_BLENDER_IDENTITY=blender-factory
+FACTORY_BLENDER_KEY=distinct_from_blender-hermes
+FACTORY_BLENDER_MCP=connected_4_tools
+FACTORY_BLENDER_RUNTIME=5.2.0
+
+BLENDER_REPO_FIX_COMMIT=0d90800
+BLENDER_REPO_FIX_PUSHED=true
+BLENDER_DOCTOR=pass
+BLENDER_TESTS=41_passed_0_failed
+BLENDER_LINKED_SCENE_PREFLIGHT=pass
+BLENDER_MCP_RENDER=preflight_preview_final_all_exit_0
+BLENDER_AGENT_LEVEL=BLENDER_HERMES_AGENT_OK
+
+RETIREMENT_CONFLICT=resolved
+RETIREMENT_GUARD=exit_78_fail_closed
+FACTORY_RETIREMENT_STATE=unchanged
+
+TELEGRAM_NOTE=Same bot has prior real inbound-response records; current polling connection and outbound delivery are verified. A fresh user reply is optional manual confirmation, not a service blocker.
