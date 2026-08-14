@@ -1,0 +1,28 @@
+FACTORY_DIRECT_BLENDER_MCP=PARTIAL_EXTERNAL_AUTH_BLOCK
+CAPTURED_AT=2026-08-14T01:25Z
+FACTORY_DROID_VERSION=0.195.0
+INSTALL=/home/factory/.local/bin/droid
+INSTALLER_CHECKSUM=reported PASS by official Factory installer
+FACTORY_USER=uid 1003 factory; non-root
+FACTORY_GROUPS=factory,blender-pro-agent
+
+MCP_CONFIG=/home/factory/.factory/mcp.json
+MCP_CONFIG_OWNER=factory:factory
+MCP_SERVER=blender-pro
+MCP_TRANSPORT=stdio
+MCP_COMMAND=/opt/blender-pro/bin/blender-agent-mcp
+DROID_MCP_LIST=connected user scope
+bridge_url=none
+
+DIRECT_IDENTITY_VALIDATION
+mcp_tools=runtime_status,scene_verify,job_run,job_status
+factory_user_job_run=PASS
+factory_user_job_status=complete
+factory_smoke_preview=/srv/blender-pro/previews/factory-smoke/preview.png
+factory_smoke_final=/srv/blender-pro/renders/factory-smoke/final.png
+outputs_owner=root:blender-pro-agent mode 0640
+
+DROID_AGENT_ACCEPTANCE=BLOCKED_EXTERNAL_AUTH
+FACTORY_API_KEY=absent (value never requested or logged)
+droid_exec=Authentication failed; log in or set valid FACTORY_API_KEY
+Hermes credentials/config were not reused.
