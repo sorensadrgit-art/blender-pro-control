@@ -12,6 +12,14 @@ if id hermes >/dev/null 2>&1; then
   usermod -a -G "$GROUP" hermes
 fi
 
+# Published assets are immutable to agents but must remain readable/traversable
+# for linked-library verification and rendering. SGID preserves the agent group
+# on future published versions without granting agents write access.
+install -d -o root -g "$GROUP" -m 2750 "$ROOT/assets/published"
+chgrp -R "$GROUP" "$ROOT/assets/published"
+find "$ROOT/assets/published" -type d -exec chmod 2750 {} +
+find "$ROOT/assets/published" -type f -exec chmod 0640 {} +
+
 for dir in jobs previews renders; do
   install -d -o root -g "$GROUP" -m 2770 "$ROOT/$dir"
   chgrp -R "$GROUP" "$ROOT/$dir"
