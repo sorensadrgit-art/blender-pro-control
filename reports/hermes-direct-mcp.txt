@@ -1,0 +1,28 @@
+HERMES_DIRECT_BLENDER_MCP=PASS
+CAPTURED_AT=2026-08-14T01:16Z
+HERMES_VERSION=0.20.0 (2026.8.3)
+CONFIG_SHA256_BEFORE=834af63ae74c84507ed4b9c74c82532029e78f739017f55d7b423a964fbe3a50
+CONFIG_SHA256_AFTER=ab6fb5c521e4c52609ba8f8efbab622092c96074e462c86cfd947db385757121
+CONFIG_BACKUP=/home/hermes/.hermes/config.yaml.bak.blender-pro-20260814T0116Z
+
+MCP_SERVERS
+basic-memory=enabled preserved
+notion=enabled preserved
+blender-pro=enabled direct stdio /opt/blender-pro/bin/blender-agent-mcp
+blender-pro-tools=runtime_status,scene_verify,job_run,job_status
+bridge_url=none in blender-pro MCP
+
+SERVICE_STATE
+hermes-gateway.service=active
+hermes-backend.service=active
+normal_agent_user=hermes uid=1000 non-root
+blender_group=blender-pro-agent
+
+END_TO_END
+runtime_status=PASS Blender 5.2.0 LTS fbe6228777e7
+scene_verify=PASS /srv/blender-pro/projects/work/smoke/scene.blend
+job_run=PASS /srv/blender-pro/jobs/hermes-smoke.json
+job_status=complete
+preview=/srv/blender-pro/previews/hermes-smoke/preview.png
+final=/srv/blender-pro/renders/hermes-smoke/final.png
+repeat_same_job=PASS after worker pre-run cleanup fix
