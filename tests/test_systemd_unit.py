@@ -29,6 +29,9 @@ class SystemdUnitTests(unittest.TestCase):
             'ExecStart=/opt/blender-pro/bin/blender-job /srv/blender-pro/jobs/%i.json',
             text,
         )
+        self.assertIn('ExecStartPre=-+/usr/bin/rm -rf /srv/blender-pro/previews/%i', text)
+        self.assertIn('ExecStartPre=-+/usr/bin/rm -rf /srv/blender-pro/renders/%i', text)
+        self.assertIn('ExecStartPre=-+/usr/bin/rm -f /srv/blender-pro/jobs/%i.result.json', text)
         self.assertIn('root:blender-pro-agent /srv/blender-pro/jobs/%i.result.json', text)
         self.assertIn('root:blender-pro-agent /srv/blender-pro/previews/%i', text)
         self.assertIn('root:blender-pro-agent /srv/blender-pro/renders/%i', text)

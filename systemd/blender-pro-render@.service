@@ -12,6 +12,9 @@ Environment=BLENDER_PRO_JOB_INSTANCE=%i
 Environment=HOME=/tmp
 Environment=XDG_CONFIG_HOME=/tmp/.config
 WorkingDirectory=/srv/blender-pro
+ExecStartPre=-+/usr/bin/rm -rf /srv/blender-pro/previews/%i
+ExecStartPre=-+/usr/bin/rm -rf /srv/blender-pro/renders/%i
+ExecStartPre=-+/usr/bin/rm -f /srv/blender-pro/jobs/%i.result.json
 ExecStart=/opt/blender-pro/bin/blender-job /srv/blender-pro/jobs/%i.json
 ExecStopPost=-+/usr/bin/chown -R root:blender-pro-agent /srv/blender-pro/previews/%i
 ExecStopPost=-+/usr/bin/chmod -R g+rX /srv/blender-pro/previews/%i
