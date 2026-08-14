@@ -30,9 +30,10 @@ class AgentPolicyTests(unittest.TestCase):
         self.assertEqual(len(verify), 2)
         run = self.policy.job_argv('/srv/blender-pro/jobs/smoke-job.json')
         self.assertEqual(run, [
-            '/usr/bin/systemctl',
-            'start',
-            'blender-pro-render@smoke-job.service',
+            '/usr/bin/sudo',
+            '-n',
+            '/opt/blender-pro/bin/blender-render-start',
+            'smoke-job',
         ])
 
     def test_result_path_is_derived(self):

@@ -7,7 +7,8 @@ SCENE_ROOTS = (
 )
 JOB_ROOT = Path('/srv/blender-pro/jobs')
 VERIFY = '/opt/blender-pro/bin/blender-verify'
-SYSTEMCTL = '/usr/bin/systemctl'
+SUDO = '/usr/bin/sudo'
+RENDER_START = '/opt/blender-pro/bin/blender-render-start'
 SAFE_INSTANCE = re.compile(r'^[A-Za-z0-9][A-Za-z0-9._-]*$')
 
 
@@ -45,8 +46,7 @@ class AgentPolicy:
 
     def job_argv(self, raw):
         manifest = Path(self.job_path(raw))
-        unit = f'blender-pro-render@{manifest.stem}.service'
-        return [SYSTEMCTL, 'start', unit]
+        return [SUDO, '-n', RENDER_START, manifest.stem]
 
     def result_path(self, raw):
         manifest = Path(self.job_path(raw))

@@ -1,0 +1,1 @@
+%blender-pro-agent ALL=(root) NOPASSWD: /opt/blender-pro/bin/blender-render-start *
