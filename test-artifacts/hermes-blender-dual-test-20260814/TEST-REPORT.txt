@@ -1,0 +1,20 @@
+HERMES DESKTOP + VPS BLENDER TEST ? 2026-08-14
+
+Desktop Hermes agent marker: DESKTOP_HERMES_BLENDER_RENDER_OK
+Desktop manifest: /srv/blender-pro/jobs/desktop-hermes-dual-test.json
+Desktop job status: complete
+Desktop phases: [('preflight', 0), ('preview', 0), ('final', 0)]
+Desktop final SHA256: c69b0431077410cd7d49ad7f561d8c8dac522f5f3635707332be1ccc7048828c
+
+VPS Hermes agent marker: VPS_HERMES_BLENDER_RENDER_OK
+VPS manifest: /srv/blender-pro/jobs/vps-hermes-dual-test.json
+VPS job status: complete
+VPS phases: [('preflight', 0), ('preview', 0), ('final', 0)]
+VPS final SHA256: fc216a14b5d3c89ac2761fa6aebc18561952002b927637007262aea2d056a736
+
+Blender scene: /srv/blender-pro/projects/work/smoke/scene.blend
+Engine: CYCLES
+Resolution: 320x180
+Frame: 1
+
+RESULT: PASS ? both independent Hermes instances invoked Blender MCP, completed preflight, preview, final render, and job_status successfully.
