@@ -4,45 +4,40 @@
 
 **Goal:** Make Hermes Desktop and Factory Desktop the only AI clients for Blender Pro, each using its own restricted SSH identity to the private stdio MCP, then retire the VPS-side agent runtimes only after both desktop clients pass full Blender acceptance.
 
-**Architecture:** Windows Hermes and Factory each launch Windows OpenSSH as their local MCP subprocess. The VPS authenticates each client with a different Ed25519 key and maps it to a dedicated non-root account that is restricted to the Blender MCP transport path and the existing `blender-pro-agent` render group. The existing Blender policy, render-start sudo boundary, systemd worker, projects, assets, and protected infrastructure remain unchanged.
+**Architecture:** Windows Hermes and Factory each launch Windows OpenSSH as their MCP subprocess. The VPS maps each desktop key to a different non-root account restricted to `/opt/blender-pro/bin/blender-agent-mcp`; both accounts share only the existing `blender-pro-agent` render group. Blender policy, systemd rendering, projects/assets, Traefik, 9router, Obsidian, studio-relay, and Docker topology remain unchanged.
 
-**Tech Stack:** Windows OpenSSH, PowerShell, Hermes Agent v0.20.0, Factory Droid v0.188.0, Ubuntu 24.04 LTS, OpenSSH server, Python 3.12, FastMCP stdio, systemd, Blender 5.2.0 LTS, Git.
+**Tech Stack:** Windows OpenSSH, PowerShell, Hermes Agent v0.20.0, Factory Droid v0.188.0, Ubuntu 24.04 LTS, OpenSSH server, Bash, Python 3.12, FastMCP stdio, systemd, Blender 5.2.0 LTS, Git.
 
 ## Global Constraints
-- Keep all existing Hermes Desktop MCP integrations unchanged except for adding `blender-pro`.
-- Keep all existing Factory Desktop MCP integrations unchanged except for adding `blender-pro`.
-- Keep the existing administrator SSH alias `soren` unchanged and never reference it from either AI client.
-- Use different SSH keys and different VPS identities for Hermes and Factory.
-- Desktop Blender identities must not provide a general-purpose VPS shell, forwarding, PTY access, or broader administrative capabilities.
-- Keep Blender Pro, Traefik, 9router, Obsidian, studio-relay, Docker topology, `agent-control`, and the existing render policy unchanged.
-- Do not retire the current VPS Hermes/Factory runtimes until both desktop clients pass end-to-end Blender smoke tests.
-- No public Blender MCP listener, shared bridge, or shared desktop identity may be introduced.
-- Never commit private SSH keys, OAuth tokens, MCP bearer tokens, or Factory/Hermes credentials.
+- Preserve every existing Hermes Desktop MCP integration except adding `blender-pro`.
+- Preserve every existing Factory Desktop MCP integration except adding `blender-pro`.
+- Preserve the human administrator SSH alias `soren`; neither AI client may use it.
+- Hermes and Factory must use different Ed25519 keys and different VPS identities.
+- Desktop Blender identities must not provide a general shell, forwarding, PTY access, or root access.
+- Preserve Blender Pro, Traefik, 9router, Obsidian, studio-relay, Docker topology, `agent-control`, and the current render policy.
+- Keep VPS Hermes/Factory runtimes intact until both desktop agents pass end-to-end Blender smoke renders.
+- Do not introduce a public Blender MCP listener, shared bridge, or shared desktop identity.
+- Never commit private keys, OAuth tokens, bearer tokens, or agent credentials.
 
 ---
 
-### Task 1: Baseline inventory and migration contract
+### Task 1: Baseline and migration contract
 
 **Files:**
 - Create: `reports/desktop-clients-before.txt`
 - Create: `tests/test_desktop_clients_contract.py`
 
 **Interfaces:**
-- Consumes: current desktop Hermes/Factory config paths, Windows SSH config, current VPS agent identities/services, and the existing Blender deployment files.
-- Produces: a secret-free before-state plus regression tests defining the target identity names and deployment sources.
+- Consumes: current desktop config hashes/server names and current VPS service/account state.
+- Produces: secret-free before-state and RED tests for the target deployment sources.
 
-- [ ] **Step 1: Capture the before-state without secrets**
+- [ ] **Step 1: Capture the before-state**
 
-Record only hashes and server names from:
-- `C:\Users\soren\AppData\Local\hermes\config.yaml`
-- `C:\Users\soren\.factory\mcp.json`
-- `C:\Users\soren\.ssh\config`
+Record SHA-256 hashes and MCP server names only for:
+`C:\Users\soren\AppData\Local\hermes\config.yaml`, `C:\Users\soren\.factory\mcp.json`, and `C:\Users\soren\.ssh\config`.
+Also record desktop versions, `ssh -G soren` user/host summary, VPS `hermes`/`factory` account status, `blender-pro-agent` membership, active Hermes-related services, protected container IDs/status, Blender doctor status, and Git commit. Redact token-bearing URLs and secrets.
 
-Also record Hermes/Factory desktop versions, current MCP server names, `ssh -G soren` user/host summary, VPS `hermes`/`factory` account status, Blender group membership, active Hermes-related services, protected container IDs/status, Blender doctor status, and current Git commit. Do not record URLs containing tokens, API keys, private key material, or environment secrets.
-
-- [ ] **Step 2: Write the failing desktop-client contract test**
-
-Create `tests/test_desktop_clients_contract.py` with four tests:
+- [ ] **Step 2: Write the failing contract test**
 
 ```python
 import unittest
@@ -54,7 +49,7 @@ SSH_CONFIG = ROOT / 'deploy' / 'desktop-blender-ssh-config.txt'
 PERMISSIONS = ROOT / 'deploy' / 'configure_direct_agent_permissions.sh'
 
 class DesktopClientContractTests(unittest.TestCase):
-    def test_restricted_ssh_deployment_source_exists(self):
+    def test_restricted_ssh_sources_exist(self):
         self.assertTrue(SSH_SETUP.is_file(), SSH_SETUP)
         self.assertTrue(SSH_CONFIG.is_file(), SSH_CONFIG)
 
@@ -63,12 +58,12 @@ class DesktopClientContractTests(unittest.TestCase):
         self.assertIn('blender-hermes', text)
         self.assertIn('blender-factory', text)
 
-    def test_private_blender_mcp_is_the_only_forced_transport(self):
+    def test_private_mcp_is_forced_and_restricted(self):
         text = SSH_SETUP.read_text(encoding='utf-8')
         self.assertIn('/opt/blender-pro/bin/blender-agent-mcp', text)
-        self.assertIn('restrict', text)
+        self.assertIn('restrict,command=', text)
 
-    def test_future_permissions_manage_desktop_identities(self):
+    def test_permissions_target_desktop_identities(self):
         text = PERMISSIONS.read_text(encoding='utf-8')
         self.assertIn('blender-hermes', text)
         self.assertIn('blender-factory', text)
@@ -77,22 +72,20 @@ class DesktopClientContractTests(unittest.TestCase):
 
 - [ ] **Step 3: Verify RED**
 
-Run:
-
 ```bash
 python3 -m unittest tests.test_desktop_clients_contract -v
 ```
 
-Expected: FAIL because the restricted SSH deployment source and desktop aliases do not yet exist and the permissions script still targets the VPS Hermes identity.
+Expected: FAIL because the desktop deployment sources do not exist and the permissions script still targets VPS Hermes.
 
-- [ ] **Step 4: Commit baseline and RED contract**
+- [ ] **Step 4: Commit**
 
 ```bash
 git add reports/desktop-clients-before.txt tests/test_desktop_clients_contract.py
 git commit -m "test: define desktop Blender client contract"
 ```
 
-### Task 2: Version the restricted desktop SSH identity deployment
+### Task 2: Version the restricted SSH deployment
 
 **Files:**
 - Create: `deploy/configure_desktop_mcp_ssh.sh`
@@ -101,26 +94,52 @@ git commit -m "test: define desktop Blender client contract"
 - Test: `tests/test_desktop_clients_contract.py`
 
 **Interfaces:**
-- Consumes: two Ed25519 public-key file paths supplied at deployment time and the existing `blender-pro-agent` group.
-- Produces: VPS identities `blender-hermes` and `blender-factory`, each password-locked and authorized only for the private Blender MCP path; versioned Windows SSH alias template.
+- Consumes: two Ed25519 public-key file paths and existing `blender-pro-agent` group.
+- Produces: password-locked `blender-hermes` and `blender-factory` accounts restricted to the Blender MCP plus a Windows alias template.
 
-- [ ] **Step 1: Implement the restricted SSH provisioning script**
+- [ ] **Step 1: Implement `configure_desktop_mcp_ssh.sh`**
 
-`deploy/configure_desktop_mcp_ssh.sh` must:
-- accept exactly two arguments: Hermes public-key file and Factory public-key file;
-- reject missing files and non-Ed25519 public keys with nonzero exit codes;
-- create `blender-hermes` and `blender-factory` if absent using separate homes and a standard shell required for OpenSSH forced-command execution;
-- lock account passwords;
-- add both accounts to `blender-pro-agent`;
-- install root-owned SSH authorization files so the transport accounts cannot rewrite their own authorization policy;
-- restrict each authorized key to `/opt/blender-pro/bin/blender-agent-mcp` and disable forwarding/PTY behavior through OpenSSH key restrictions;
-- never copy private key material to the VPS.
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
 
-The authorization record generated by the script must combine OpenSSH's restrictive key option with a forced command pointing to `/opt/blender-pro/bin/blender-agent-mcp`, followed by the supplied Ed25519 public key.
+if [[ $# -ne 2 ]]; then
+  echo "usage: $0 HERMES_PUBKEY FACTORY_PUBKEY" >&2
+  exit 64
+fi
 
-- [ ] **Step 2: Add the versioned Windows SSH alias template**
+GROUP=blender-pro-agent
+MCP=/opt/blender-pro/bin/blender-agent-mcp
 
-Create `deploy/desktop-blender-ssh-config.txt` containing two entries with these exact identity names and key paths:
+provision() {
+  local user="$1" keyfile="$2" key auth
+  [[ -r "$keyfile" ]] || { echo "missing public key: $keyfile" >&2; return 66; }
+  /usr/bin/ssh-keygen -l -f "$keyfile" | /usr/bin/grep -q ED25519 || {
+    echo "public key must be ED25519: $keyfile" >&2
+    return 65
+  }
+  key="$(/usr/bin/tr -d '\r\n' < "$keyfile")"
+
+  if ! id "$user" >/dev/null 2>&1; then
+    /usr/sbin/useradd --system --create-home --user-group \
+      --home-dir "/home/$user" --shell /bin/bash "$user"
+  fi
+  /usr/bin/passwd -l "$user" >/dev/null
+  /usr/sbin/usermod -a -G "$GROUP" "$user"
+
+  /usr/bin/install -d -o root -g root -m 0755 "/home/$user"
+  /usr/bin/install -d -o root -g root -m 0755 "/home/$user/.ssh"
+  auth="/home/$user/.ssh/authorized_keys"
+  /usr/bin/printf 'restrict,command="%s" %s\n' "$MCP" "$key" > "$auth"
+  /usr/bin/chown root:root "$auth"
+  /usr/bin/chmod 0644 "$auth"
+}
+
+provision blender-hermes "$1"
+provision blender-factory "$2"
+```
+
+- [ ] **Step 2: Add the Windows SSH alias template**
 
 ```text
 Host blender-hermes
@@ -144,9 +163,9 @@ Host blender-factory
     ClearAllForwardings yes
 ```
 
-- [ ] **Step 3: Update the persistent Blender permissions script**
+- [ ] **Step 3: Update future render-group membership**
 
-Replace the old direct-client membership logic with:
+Replace the old Hermes-only membership block in `deploy/configure_direct_agent_permissions.sh` with:
 
 ```bash
 for user in blender-hermes blender-factory; do
@@ -156,11 +175,7 @@ for user in blender-hermes blender-factory; do
 done
 ```
 
-Do not add the retiring VPS `hermes` or `factory` agent identities in this deployment script.
-
-- [ ] **Step 4: Verify GREEN and shell syntax**
-
-Run:
+- [ ] **Step 4: Verify GREEN**
 
 ```bash
 python3 -m unittest tests.test_desktop_clients_contract -v
@@ -169,8 +184,6 @@ bash -n deploy/configure_direct_agent_permissions.sh
 python3 -m unittest discover -s tests -q
 ```
 
-Expected: desktop contract tests PASS and the complete repository suite remains green.
-
 - [ ] **Step 5: Commit**
 
 ```bash
@@ -178,42 +191,37 @@ git add deploy/configure_desktop_mcp_ssh.sh deploy/desktop-blender-ssh-config.tx
 git commit -m "feat: add restricted desktop Blender identities"
 ```
 
-### Task 3: Create desktop keys, deploy VPS identities, and add Windows SSH aliases
+### Task 3: Generate keys, deploy identities, and add Windows aliases
 
 **Files:**
-- Runtime only: `C:\Users\soren\.ssh\blender_hermes_ed25519`
-- Runtime only: `C:\Users\soren\.ssh\blender_hermes_ed25519.pub`
-- Runtime only: `C:\Users\soren\.ssh\blender_factory_ed25519`
-- Runtime only: `C:\Users\soren\.ssh\blender_factory_ed25519.pub`
+- Runtime only: `C:\Users\soren\.ssh\blender_hermes_ed25519{,.pub}`
+- Runtime only: `C:\Users\soren\.ssh\blender_factory_ed25519{,.pub}`
 - Modify runtime only: `C:\Users\soren\.ssh\config`
 - Create: `reports/desktop-ssh-identities.txt`
 
 **Interfaces:**
-- Consumes: Task 2 deployment script and current admin SSH alias `soren` for one-time administration.
-- Produces: two distinct non-root transport aliases, `blender-hermes` and `blender-factory`.
+- Consumes: Task 2 script and human-admin alias `soren` for deployment only.
+- Produces: two different non-root desktop transport aliases.
 
 - [ ] **Step 1: Back up desktop configs**
 
-Create a timestamped directory under `C:\Users\soren\.backups\blender-desktop-migration\` and copy the current Hermes config, Factory MCP config, and SSH config there. Record SHA-256 hashes only in the report.
+Create `C:\Users\soren\.backups\blender-desktop-migration\<timestamp>\` and copy Hermes config, Factory MCP config, and SSH config. Record hashes only.
 
-- [ ] **Step 2: Generate two keys without overwriting existing files**
-
-In PowerShell, first fail if any target key file already exists. Then generate separate Ed25519 keypairs:
+- [ ] **Step 2: Generate separate keys only if the target files are absent**
 
 ```powershell
-& $env:WINDIR\System32\OpenSSH\ssh-keygen.exe -t ed25519 -f "$env:USERPROFILE\.ssh\blender_hermes_ed25519" -N "" -C "blender-hermes-desktop"
-& $env:WINDIR\System32\OpenSSH\ssh-keygen.exe -t ed25519 -f "$env:USERPROFILE\.ssh\blender_factory_ed25519" -N "" -C "blender-factory-desktop"
+$sshKeygen = "$env:WINDIR\System32\OpenSSH\ssh-keygen.exe"
+& $sshKeygen -t ed25519 -f "$env:USERPROFILE\.ssh\blender_hermes_ed25519" -N "" -C "blender-hermes-desktop"
+& $sshKeygen -t ed25519 -f "$env:USERPROFILE\.ssh\blender_factory_ed25519" -N "" -C "blender-factory-desktop"
+& $sshKeygen -lf "$env:USERPROFILE\.ssh\blender_hermes_ed25519.pub"
+& $sshKeygen -lf "$env:USERPROFILE\.ssh\blender_factory_ed25519.pub"
 ```
 
-Verify the two public-key fingerprints differ.
+Verify the fingerprints differ. Stop rather than overwrite any existing key.
 
-- [ ] **Step 3: Copy only public keys to a temporary root-only VPS location**
+- [ ] **Step 3: Transfer public keys only and provision the VPS identities**
 
-Use the existing human-admin `soren` SSH alias to transfer the two `.pub` files. Never transfer either private key.
-
-- [ ] **Step 4: Run the versioned VPS provisioning script**
-
-Invoke `deploy/configure_desktop_mcp_ssh.sh` with the two temporary public-key paths, then delete the temporary public-key copies after successful installation.
+Use the existing `soren` administrator path to copy only the `.pub` files to a temporary root-only location, run the versioned Task 2 script with those two public-key paths, then remove the temporary copies.
 
 Verify:
 
@@ -223,109 +231,97 @@ id blender-factory
 getent group blender-pro-agent
 ```
 
-Expected: both identities exist, are distinct, are non-root, and are members of `blender-pro-agent`.
+- [ ] **Step 4: Append aliases without changing `Host soren`**
 
-- [ ] **Step 5: Append the two aliases without modifying `Host soren`**
+Append the Task 2 template only if `Host blender-hermes` and `Host blender-factory` are absent.
 
-Append the exact Task 2 alias template to `C:\Users\soren\.ssh\config` only after checking neither alias already exists.
-
-- [ ] **Step 6: Verify resolved SSH settings and restrictions**
-
-Run:
+- [ ] **Step 5: Verify resolved client settings**
 
 ```powershell
 ssh -G blender-hermes
 ssh -G blender-factory
 ```
 
-Verify each resolves to its own user and key file and neither resolves to `User root`.
+Expected: different `user` and `identityfile` values; neither user is root.
 
-Then close stdin while connecting to each alias and confirm the connection does not provide a normal interactive shell. Also try supplying a harmless remote command and verify the supplied command is not executed because the server-side Blender MCP transport restriction takes precedence.
+- [ ] **Step 6: Verify the transport restriction**
 
-- [ ] **Step 7: Commit the secret-free verification report**
+Close stdin while connecting to each alias and confirm the MCP transport exits without presenting an interactive shell. Supply a harmless remote command with stdin closed and verify that command is not executed because the server-side forced Blender MCP command takes precedence.
+
+- [ ] **Step 7: Commit the report**
 
 ```bash
 git add reports/desktop-ssh-identities.txt
 git commit -m "docs: verify separate desktop SSH identities"
 ```
 
-### Task 4: Connect Hermes Desktop directly to Blender Pro
+### Task 4: Connect and accept Hermes Desktop
 
 **Files:**
 - Modify runtime only: `C:\Users\soren\AppData\Local\hermes\config.yaml`
 - Create: `reports/hermes-desktop-mcp.txt`
 
 **Interfaces:**
-- Consumes: Windows alias `blender-hermes` and the existing private Blender MCP.
-- Produces: Hermes Desktop MCP server `blender-pro` without changing any existing Hermes MCP entry.
+- Consumes: `blender-hermes` alias.
+- Produces: Hermes Desktop `blender-pro` MCP and a completed agent smoke render.
 
-- [ ] **Step 1: Snapshot Hermes MCP names before editing**
+- [ ] **Step 1: Snapshot current Hermes server names and config hash**
 
-Save the sorted set of current Hermes MCP names and the config SHA-256 to the report. Do not copy server URLs or bearer headers into the report.
+Record names/hashes only; do not record token-bearing URLs or headers.
 
-- [ ] **Step 2: Add the Hermes stdio MCP with the installed CLI**
-
-Run:
+- [ ] **Step 2: Add the MCP with Hermes CLI**
 
 ```powershell
 hermes mcp add blender-pro --command "C:\Windows\System32\OpenSSH\ssh.exe" --args -T blender-hermes
 ```
 
-The `--args` option must remain last. When Hermes discovers the server, enable all four Blender tools.
+Enable all four discovered Blender tools.
 
-- [ ] **Step 3: Verify Hermes MCP transport**
-
-Run:
+- [ ] **Step 3: Verify MCP connectivity**
 
 ```powershell
 hermes mcp list
 hermes mcp test blender-pro
 ```
 
-Expected: `blender-pro` connects through stdio and reports exactly four tools: `runtime_status`, `scene_verify`, `job_run`, and `job_status`.
+Expected tools: `runtime_status`, `scene_verify`, `job_run`, `job_status` only.
 
-- [ ] **Step 4: Verify no unrelated Hermes MCP was changed**
+- [ ] **Step 4: Verify existing Hermes MCP names are unchanged**
 
-Compare the post-edit MCP-name set with the pre-edit set plus exactly one new item, `blender-pro`.
+Post-edit set must equal pre-edit set plus exactly `blender-pro`.
 
-- [ ] **Step 5: Create an approved Hermes desktop smoke manifest**
+- [ ] **Step 5: Create the Hermes smoke manifest**
 
-Using the administrator VPS connection, create `/srv/blender-pro/jobs/desktop-hermes-smoke.json` with project `desktop-hermes-smoke`, the approved smoke scene, 320x180 resolution, and output paths under the matching preview/render directories.
+Create `/srv/blender-pro/jobs/desktop-hermes-smoke.json` through the human-admin VPS connection using project `desktop-hermes-smoke`, scene `/srv/blender-pro/projects/work/smoke/scene.blend`, CYCLES, frame 1, resolution 320x180, and matching preview/render output paths.
 
-- [ ] **Step 6: Run the Hermes Desktop agent acceptance**
+- [ ] **Step 6: Run Hermes agent acceptance**
 
-Run a Hermes one-shot prompt instructing Hermes to use only the `blender-pro` MCP tools to:
-1. call `runtime_status`;
-2. verify `/srv/blender-pro/projects/work/smoke/scene.blend`;
-3. run `/srv/blender-pro/jobs/desktop-hermes-smoke.json`;
-4. read final `job_status`.
+Use a Hermes one-shot prompt that says: use only `blender-pro`; call runtime status; verify the smoke scene; run `desktop-hermes-smoke.json`; read final status. Expected final status: `complete`.
 
-Expected: status `complete`, preview and final output files exist, and no terminal/shell tool is needed for the Blender operation.
-
-- [ ] **Step 7: Commit the Hermes report**
+- [ ] **Step 7: Commit report**
 
 ```bash
 git add reports/hermes-desktop-mcp.txt
 git commit -m "docs: verify Hermes Desktop Blender MCP"
 ```
 
-### Task 5: Connect Factory Desktop directly to Blender Pro
+### Task 5: Connect and accept Factory Desktop
 
 **Files:**
 - Modify runtime only: `C:\Users\soren\.factory\mcp.json`
 - Create: `reports/factory-desktop-mcp.txt`
 
 **Interfaces:**
-- Consumes: Windows alias `blender-factory` and Factory Desktop's existing account/model configuration.
-- Produces: separate Factory Desktop MCP server `blender-pro` without changing any existing Factory MCP entry.
+- Consumes: `blender-factory` alias and Factory Desktop's existing account/model entitlement.
+- Produces: Factory Desktop `blender-pro` MCP and completed agent smoke render.
 
-- [ ] **Step 1: Snapshot Factory MCP names before editing**
+- [ ] **Step 1: Snapshot Factory server names and config hash**
 
-Record the sorted MCP server-name set and config SHA-256 only. Do not copy token-bearing URLs or credentials to the report.
+Record names/hashes only.
 
-- [ ] **Step 2: Add only the `blender-pro` JSON object**
+- [ ] **Step 2: Add exactly one JSON MCP entry**
 
-Use PowerShell JSON parsing to fail if `mcpServers.blender-pro` already exists. Add exactly:
+Use PowerShell JSON parsing and stop if `blender-pro` already exists. Add:
 
 ```json
 {
@@ -336,96 +332,87 @@ Use PowerShell JSON parsing to fail if `mcpServers.blender-pro` already exists. 
 }
 ```
 
-Write the JSON back with sufficient depth so all existing nested MCP settings survive.
+Write with sufficient JSON depth to preserve all existing nested entries.
 
-- [ ] **Step 3: Verify Factory MCP connectivity**
-
-Run:
+- [ ] **Step 3: Verify MCP connectivity and preservation**
 
 ```powershell
 droid mcp list
 ```
 
-Expected: `blender-pro` is `stdio` and `connected` at user scope.
+Expected: `blender-pro` is connected at user scope; post-edit server-name set equals pre-edit set plus exactly `blender-pro`.
 
-- [ ] **Step 4: Verify no unrelated Factory MCP changed**
+- [ ] **Step 4: Verify Factory model entitlement before retirement**
 
-Compare the post-edit server-name set with the pre-edit set plus exactly `blender-pro`.
+Run a minimal read-only `droid exec`. If authentication, subscription, or model entitlement fails, STOP and keep all VPS agent runtimes intact.
 
-- [ ] **Step 5: Verify Factory model entitlement before touching VPS rollback state**
+- [ ] **Step 5: Create the Factory smoke manifest**
 
-Run a minimal read-only `droid exec` request. If Factory authentication or subscription/model entitlement fails, STOP here and keep all current VPS agent runtimes intact. Do not proceed to Task 6.
+Create `/srv/blender-pro/jobs/desktop-factory-smoke.json` with project `desktop-factory-smoke`, the approved smoke scene, CYCLES, frame 1, 320x180 resolution, and matching preview/render paths.
 
-- [ ] **Step 6: Create and run the Factory desktop smoke manifest**
+- [ ] **Step 6: Run Factory agent acceptance**
 
-Create `/srv/blender-pro/jobs/desktop-factory-smoke.json` with project `desktop-factory-smoke`, the approved smoke scene, 320x180 resolution, and matching preview/render output paths.
+Run `droid exec` with a prompt that says: use only `blender-pro`; call runtime status; verify the smoke scene; run `desktop-factory-smoke.json`; read final status. Expected final status: `complete`.
 
-Run `droid exec` with a prompt that instructs Factory to use only `blender-pro` MCP tools for `runtime_status`, scene verification, job run, and final status.
-
-Expected: final job status `complete` and outputs exist under the Factory smoke paths.
-
-- [ ] **Step 7: Commit the Factory report**
+- [ ] **Step 7: Commit report**
 
 ```bash
 git add reports/factory-desktop-mcp.txt
 git commit -m "docs: verify Factory Desktop Blender MCP"
 ```
 
-### Task 6: Retire the VPS-side Hermes and Factory agent runtimes
+### Task 6: Retire VPS Hermes/Factory runtimes only after both desktop passes
 
 **Files:**
 - Create: `reports/vps-agent-retirement.txt`
-- Runtime-only service/user cleanup on VPS.
+- Runtime-only VPS service/user cleanup.
 
 **Interfaces:**
-- Consumes: successful Task 4 and Task 5 desktop agent reports.
-- Produces: Blender VPS with desktop-only agent clients while preserving Blender and unrelated services.
+- Consumes: Task 4 and Task 5 PASS reports.
+- Produces: desktop-only AI clients while preserving Blender and unrelated services.
 
 - [ ] **Step 1: Enforce the retirement gate**
 
-Do not continue unless both desktop reports explicitly show MCP connectivity and completed agent-level Blender smoke renders.
+Both desktop reports must show MCP connected and agent-level smoke status `complete`; otherwise STOP.
 
-- [ ] **Step 2: Capture protected-service and runtime rollback state**
+- [ ] **Step 2: Capture rollback state and dependency evidence**
 
-Record current IDs/status for Traefik, 9router, studio-relay, relevant Obsidian runtime if present, Blender doctor, active listeners, Hermes-related units, and hashes/paths of the VPS Hermes/Factory runtime configuration. Archive VPS Hermes/Factory runtime config to a root-only migration backup location before removal.
+Record protected container IDs/status, Blender doctor, listeners, Hermes-related unit states, and runtime paths. Create a root-only archive of VPS Hermes/Factory configuration before removal. Recheck that no unrelated service consumes Hermes backend/gateway/Headroom listeners.
 
-- [ ] **Step 3: Reconfirm Hermes provider-helper isolation**
+- [ ] **Step 3: Retire Factory VPS runtime**
 
-Search service definitions and runtime configuration for consumers of the Hermes backend/gateway/Headroom listeners. Proceed only if no unrelated service consumes them.
+After backup, remove the VPS Droid runtime/config and remove `factory` from `blender-pro-agent`. Audit UID-owned files outside `/home/factory`; delete the account only if that audit proves it is project-only, otherwise lock/preserve it and record the reason.
 
-- [ ] **Step 4: Retire VPS Factory runtime**
+- [ ] **Step 4: Retire Hermes VPS runtime**
 
-Remove Factory Droid's VPS runtime/config after backup, remove the old `factory` identity from `blender-pro-agent`, and audit files owned by the Factory UID outside its home. Delete the account only if that audit proves it is project-only; otherwise lock it and record why it was preserved.
+After the dependency check, stop/disable `hermes-backend.service`, `hermes-gateway.service`, `headroom-proxy.service`, and the associated watchdog/timer runtime. Remove the backed-up Hermes agent runtime files and remove `hermes` from `blender-pro-agent`. Preserve the Linux `hermes` UID/account unless a filesystem ownership audit proves deletion safe.
 
-- [ ] **Step 5: Retire VPS Hermes runtime**
+- [ ] **Step 5: Verify only desktop Blender identities remain required**
 
-Stop and disable the Hermes backend/gateway/provider-helper runtime and associated watchdog/timer units after the dependency check passes. Remove the VPS Hermes agent runtime files after backup and remove `hermes` from `blender-pro-agent`.
+```bash
+getent group blender-pro-agent
+systemctl is-active hermes-backend.service hermes-gateway.service headroom-proxy.service || true
+```
 
-Preserve the Linux `hermes` identity/UID unless a full ownership audit proves deletion safe. Do not alter 9router, Traefik, Obsidian, studio-relay, or unrelated Docker services.
+Expected: `blender-hermes` and `blender-factory` are present; retired agent services are inactive; unrelated services were not restarted.
 
-- [ ] **Step 6: Verify the desktop identities remain the only Blender client members**
-
-Check `blender-pro-agent` membership and confirm it includes `blender-hermes` and `blender-factory` and no longer depends on VPS Hermes/Factory agent identities.
-
-- [ ] **Step 7: Commit the retirement report**
+- [ ] **Step 6: Commit report**
 
 ```bash
 git add reports/vps-agent-retirement.txt
 git commit -m "docs: record VPS agent runtime retirement"
 ```
 
-### Task 7: Final acceptance and production checkpoint
+### Task 7: Final acceptance
 
 **Files:**
 - Create: `reports/desktop-agents-acceptance.json`
 
 **Interfaces:**
 - Consumes: all prior tasks.
-- Produces: final auditable desktop-only Blender Pro production checkpoint.
+- Produces: auditable desktop-only production checkpoint.
 
-- [ ] **Step 1: Run repository and Blender verification**
-
-Run:
+- [ ] **Step 1: Run repository/Blender verification**
 
 ```bash
 python3 -m unittest discover -s tests -q
@@ -435,62 +422,48 @@ git diff --check
 /opt/blender-pro/bin/blender-doctor
 ```
 
-Expected: full test suite green, unit/sudoers/diff checks clean, doctor `ok=true`.
+- [ ] **Step 2: Re-run both desktop agent smoke workflows**
 
-- [ ] **Step 2: Re-run Hermes Desktop acceptance**
+Hermes: `hermes mcp test blender-pro` plus the Hermes smoke prompt. Factory: `droid mcp list` plus the Factory smoke prompt. Both final job statuses must be `complete`.
 
-Verify `hermes mcp test blender-pro`, rerun the desktop Hermes smoke workflow, and confirm final status `complete`.
+- [ ] **Step 3: Verify identity isolation and no bridge/public listener**
 
-- [ ] **Step 3: Re-run Factory Desktop acceptance**
+Confirm distinct alias users, distinct key fingerprints, neither user root, no interactive shell path, no public Blender MCP listener, and no shared agent bridge.
 
-Verify `droid mcp list`, rerun the desktop Factory smoke workflow, and confirm final status `complete`.
+- [ ] **Step 4: Verify desktop config preservation**
 
-- [ ] **Step 4: Verify identity isolation**
+Each current desktop MCP server-name set must equal its Task 1 set plus exactly `blender-pro`.
 
-Confirm:
-- Hermes and Factory aliases resolve to different VPS users;
-- key fingerprints differ;
-- neither alias resolves to root;
-- neither identity provides a general-purpose shell;
-- no public Blender MCP listener exists;
-- no shared agent bridge exists.
+- [ ] **Step 5: Verify protected services**
 
-- [ ] **Step 5: Verify desktop configuration preservation**
+Traefik, 9router, studio-relay, Obsidian if present, shared Docker networking, and Blender must be healthy. Compare protected container IDs when no restart was expected.
 
-Compare current desktop MCP-name sets to the Task 1 snapshots. Each must equal the original set plus exactly `blender-pro`.
+- [ ] **Step 6: Write and commit acceptance JSON**
 
-- [ ] **Step 6: Verify protected services**
-
-Confirm Traefik, 9router, studio-relay, Obsidian if present, shared Docker networking, and Blender remain healthy. Compare protected container IDs where no restart was expected.
-
-- [ ] **Step 7: Write acceptance JSON**
-
-Record pass/fail for repository tests, Blender doctor, both desktop MCP transports, both agent smoke renders, SSH identity separation, VPS runtime retirement, listener/bridge checks, and protected services. Include no secrets or private-key material.
-
-- [ ] **Step 8: Commit**
+Record pass/fail for tests, doctor, both desktop MCPs, both renders, SSH separation, VPS retirement, listener/bridge checks, and protected services. Include no secrets.
 
 ```bash
 git add reports/desktop-agents-acceptance.json
 git commit -m "docs: accept desktop Hermes and Factory Blender access"
 ```
 
-### Task 8: Integrate the migration branch
+### Task 8: Integrate through the branch-finishing workflow
 
 **Files:**
-- No new functional files; Git integration only.
+- No functional files; Git integration only.
 
 **Interfaces:**
-- Consumes: clean, verified feature branch.
-- Produces: accepted changes integrated into `main` through the finishing-development-branch workflow.
+- Consumes: clean verified migration branch.
+- Produces: user-selected merge/push/keep result.
 
-- [ ] **Step 1: Verify branch cleanliness and exact commit**
+- [ ] **Step 1: Re-run Task 7 verification on the final branch tip**
 
-Run the complete Task 7 verification again on the final branch tip and ensure `git status --short` is empty.
+Require a clean `git status --short`.
 
-- [ ] **Step 2: Handle the pre-existing local untracked design copy safely**
+- [ ] **Step 2: Handle the duplicate untracked local spec safely**
 
-Before merging into the main checkout, verify the canonical committed spec exists on the migration branch. Remove or archive only the duplicate untracked local spec that would otherwise block the merge; do not discard any committed work.
+Verify the canonical committed spec exists on the migration branch, then remove/archive only the duplicate untracked local copy that would block integration.
 
-- [ ] **Step 3: Use `superpowers:finishing-a-development-branch`**
+- [ ] **Step 3: Invoke `superpowers:finishing-a-development-branch`**
 
-Present the standard merge/push/keep options. Merge or push only according to the user's selected option, then re-run the full test suite on the integrated result before cleaning the worktree/branch.
+Present the standard three integration options and execute only the user's choice. Re-run the full test suite on any merged result before branch/worktree cleanup.
