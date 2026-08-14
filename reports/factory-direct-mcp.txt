@@ -1,4 +1,4 @@
-FACTORY_DIRECT_BLENDER_MCP=PARTIAL_EXTERNAL_AUTH_BLOCK
+FACTORY_DIRECT_BLENDER_MCP=PASS_WITH_EXTERNAL_SUBSCRIPTION_BLOCK
 CAPTURED_AT=2026-08-14T01:25Z
 FACTORY_DROID_VERSION=0.195.0
 INSTALL=/home/factory/.local/bin/droid
@@ -22,7 +22,8 @@ factory_smoke_preview=/srv/blender-pro/previews/factory-smoke/preview.png
 factory_smoke_final=/srv/blender-pro/renders/factory-smoke/final.png
 outputs_owner=root:blender-pro-agent mode 0640
 
-DROID_AGENT_ACCEPTANCE=BLOCKED_EXTERNAL_AUTH
-FACTORY_API_KEY=absent (value never requested or logged)
-droid_exec=Authentication failed; log in or set valid FACTORY_API_KEY
+DROID_AGENT_ACCEPTANCE=BLOCKED_PAYMENT_REQUIRED
+FACTORY_BROWSER_LOGIN=authenticated
+FACTORY_API_KEY=absent (not required for browser-auth flow; value never requested or logged)
+droid_exec=HTTP 402 No active subscription found; subscribe to start using Droid
 Hermes credentials/config were not reused.

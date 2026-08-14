@@ -1,9 +1,9 @@
 {
   "schema": 1,
-  "captured_at": "2026-08-14T01:33:51+00:00",
-  "overall_status": "pass_with_external_factory_auth_block",
+  "captured_at": "2026-08-14T02:07:47+00:00",
+  "overall_status": "pass_with_external_factory_subscription_block",
   "repository": {
-    "branch": "build/direct-hermes-factory",
+    "branch": "main",
     "pre_acceptance_head": "3d4cacf6bb14d4c20a321a2b2daf9cdcdbbb332f",
     "tests_passed": 41,
     "tests_failed": 0,
@@ -17,7 +17,12 @@
     "doctor_ok": true,
     "public_mcp_listener": false,
     "mcp_transport": "stdio",
-    "tool_surface": ["runtime_status", "scene_verify", "job_run", "job_status"]
+    "tool_surface": [
+      "runtime_status",
+      "scene_verify",
+      "job_run",
+      "job_status"
+    ]
   },
   "permissions": {
     "group": "blender-pro-agent",
@@ -47,9 +52,11 @@
     "blender_mcp": "connected",
     "direct_identity_mcp_job_run": "pass",
     "direct_identity_mcp_job_status": "complete",
-    "droid_exec": "blocked_external_auth",
+    "droid_exec": "blocked_payment_required",
     "factory_api_key_present": false,
-    "credential_reuse_from_hermes": false
+    "credential_reuse_from_hermes": false,
+    "browser_login": "authenticated",
+    "factory_subscription": "inactive_or_missing"
   },
   "bridge_cleanup": {
     "agent_bridge_container": "absent",
@@ -69,7 +76,7 @@
     "obsidian": "not observed in docker inventory during this acceptance; no feature action targeted it"
   },
   "known_external_blockers": [
-    "Factory Droid agent execution requires Factory login or a valid FACTORY_API_KEY; no credential was invented or reused."
+    "Factory Droid is authenticated, but Factory returned HTTP 402 'No active subscription found. Subscribe to start using Droid.' before any model turn."
   ],
   "notes": [
     "studio-relay retains stale AGENT_BRIDGE_* environment values because its container lacks hermes and droid binaries; removing those values without rebuilding studio-relay would activate an unusable CLI fallback path.",
