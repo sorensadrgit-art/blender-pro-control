@@ -3,7 +3,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-RUNTIME = Path('/root/blender-pro-control/.worktrees/build-vps-foundation/runtime')
+RUNTIME = Path(__file__).resolve().parents[1] / "runtime"
 sys.path.insert(0, str(RUNTIME))
 from asset_publish import publish_asset
 

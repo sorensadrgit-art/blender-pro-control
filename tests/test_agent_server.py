@@ -3,7 +3,7 @@ import sys
 import unittest
 from pathlib import Path
 
-RUNTIME = Path('/root/blender-pro-control/.worktrees/build-vps-foundation/runtime')
+RUNTIME = Path(__file__).resolve().parents[1] / "runtime"
 VENDOR = Path('/opt/blender-pro/agent/vendor')
 sys.path.insert(0, str(VENDOR))
 sys.path.insert(0, str(RUNTIME))

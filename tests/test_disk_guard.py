@@ -2,7 +2,7 @@ import sys
 import unittest
 from pathlib import Path
 
-RUNTIME = Path('/root/blender-pro-control/.worktrees/build-vps-foundation/runtime')
+RUNTIME = Path(__file__).resolve().parents[1] / "runtime"
 sys.path.insert(0, str(RUNTIME))
 
 from disk_guard import classify_free_percent

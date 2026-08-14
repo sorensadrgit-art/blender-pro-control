@@ -1,7 +1,7 @@
 import unittest
 from pathlib import Path
 
-ROOT = Path('/root/blender-pro-control/.worktrees/build-vps-foundation')
+ROOT = Path(__file__).resolve().parents[1]
 UNIT = ROOT / 'systemd' / 'blender-pro-render@.service'
 
 
