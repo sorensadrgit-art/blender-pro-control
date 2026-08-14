@@ -1,0 +1,78 @@
+{
+  "schema": 1,
+  "captured_at": "2026-08-14T01:33:51+00:00",
+  "overall_status": "pass_with_external_factory_auth_block",
+  "repository": {
+    "branch": "build/direct-hermes-factory",
+    "pre_acceptance_head": "3d4cacf6bb14d4c20a321a2b2daf9cdcdbbb332f",
+    "tests_passed": 41,
+    "tests_failed": 0,
+    "git_diff_check": "pass",
+    "systemd_verify": "pass",
+    "sudoers_verify": "pass"
+  },
+  "blender": {
+    "version": "5.2.0 LTS",
+    "build_hash": "fbe6228777e7",
+    "doctor_ok": true,
+    "public_mcp_listener": false,
+    "mcp_transport": "stdio",
+    "tool_surface": ["runtime_status", "scene_verify", "job_run", "job_status"]
+  },
+  "permissions": {
+    "group": "blender-pro-agent",
+    "jobs_mode": "2770",
+    "previews_mode": "2770",
+    "renders_mode": "2770",
+    "output_mode": "0640",
+    "sudo_scope": "/opt/blender-pro/bin/blender-render-start *"
+  },
+  "hermes": {
+    "version": "0.20.0 (2026.8.3)",
+    "user": "hermes",
+    "non_root": true,
+    "basic_memory_preserved": true,
+    "notion_preserved": true,
+    "blender_mcp": "connected",
+    "runtime_status": "pass",
+    "scene_verify": "pass",
+    "job_run": "pass",
+    "job_status": "complete",
+    "repeat_same_job": "pass"
+  },
+  "factory": {
+    "droid_version": "0.195.0",
+    "user": "factory",
+    "non_root": true,
+    "blender_mcp": "connected",
+    "direct_identity_mcp_job_run": "pass",
+    "direct_identity_mcp_job_status": "complete",
+    "droid_exec": "blocked_external_auth",
+    "factory_api_key_present": false,
+    "credential_reuse_from_hermes": false
+  },
+  "bridge_cleanup": {
+    "agent_bridge_container": "absent",
+    "agent_bridge_image": "absent",
+    "opt_agent_bridge": "absent",
+    "docker_agent_bridge": "absent",
+    "docker_skybridge": "absent",
+    "agent_control_network": "preserved",
+    "studio_relay_bridge_env": "preserved_due_missing_cli_fallback_binaries"
+  },
+  "protected_services": {
+    "studio_relay": "healthy; id 2980ccd90635; not restarted",
+    "ninerouter": "running; id 76d2a3c53bcd; not restarted",
+    "traefik": "running; id 47a1b0c97563; not restarted",
+    "hermes_gateway": "active",
+    "hermes_backend": "active",
+    "obsidian": "not observed in docker inventory during this acceptance; no feature action targeted it"
+  },
+  "known_external_blockers": [
+    "Factory Droid agent execution requires Factory login or a valid FACTORY_API_KEY; no credential was invented or reused."
+  ],
+  "notes": [
+    "studio-relay retains stale AGENT_BRIDGE_* environment values because its container lacks hermes and droid binaries; removing those values without rebuilding studio-relay would activate an unusable CLI fallback path.",
+    "No live shared Blender bridge remains. Hermes and Factory Blender MCP configurations are separate direct stdio clients."
+  ]
+}
